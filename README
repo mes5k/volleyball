@@ -1,0 +1,142 @@
+========================================================================
+The problem definition is to define a 10 week schedule for our
+volleyball league.
+
+Games are always played on Wednesdays.
+
+There are 48 teams in the league, divided into 8 6-team divisions.
+
+Each team plays each of the other 5 teams twice, once as the home team
+and once as the away team.
+
+Each team in a division has an initial ranking.
+
+Each team has a home gym.
+
+Teams can share gyms.
+
+Each gym has a normal set of times available for league play.
+
+Gyms may (and do) have exclusions, i.e. A gym is not available on one
+Wednesday in October.
+
+The last division might only have 7 teams, in which case team 8 is a bye.
+
+=========================================================================
+The 'manual' algorithm currently used by the scheduler.
+
+Set up all the constraints about gym usage, e.g. some gym isn't
+available at some time.
+
+Select an IDEAL  pairing set, i.e. an old schedule which has every
+team playing over the ten week,
+preferrably with teams 1 and 2 playing on the last week.
+
+The week pairing should be reflective, i.e.  the home/away pairings on
+Week 1 are the same as the away/home
+pairings for Week 6, etc.
+
+These home/away pairings will be refered to as I'n'-I'm':   e.g  I3-I5
+means team 3 is home against team 5.
+
+Start with Division 1, setting the team names as a list, assigning
+them numbers B'n':  B1, B2, ... B6
+
+Create for each home team a gym availability array of the gyms for
+that division, if it doesn't already exist.
+
+The array will consist of rows (Week 1, Week 2, ... Week 10) and with
+columns representing the available
+time slots.  The array will include all the gym usage constraints.
+
+Check each team's home gym availablility array to see when the home
+teams MUST be away.
+
+Then map the team number of the away team to the number of the ideal
+schedule, e.g. B3<=>I5.
+
+Note that if a team is required to be home on a week that the gym is
+not available, try reflecting the
+ideal pairing set, e.g. have the Week 2 pairing switch with the Week 7
+pairing.  This reflection is only
+for the two pairs of home/away teams that are a problem.
+
+Post to the gym availability array the name of the assigned home team
+to the first available time slot.
+
+Then create the division final mapping which consists of the replacing
+the I'n' assignment with the B'n'
+assignment, along with the time slot chosen from the gym availability array.
+
+Then proceed to the next division and try the same methodology.
+
+If all else fails, cry, cry, cry.
+
+====================================================
+Here is an example of the original IDEAL pairing set
+
+
+Week 1                                          Week 6
+1 vs 3                                          3 vs 1
+6 vs 4                                          4 vs 6
+2 vs 5                                          5 vs 2
+
+Week 2                                          Week 7
+4 vs 1                                          1 vs 4
+6 vs 5                                          5 vs 6
+3 vs 2                                          2 vs 3
+
+Week 3                                          Week 8
+5 vs 1                                          1 vs 5
+2 vs 6                                          6 vs 2
+4 vs 3                                          3 vs 4
+
+Week 4                                          Week 9
+6 vs 1                                          1 vs 6
+2 vs 4                                          4 vs 2
+3 vs 5                                          5 vs 3
+
+Week 5                                          Week 10
+1 vs 2                                          2 vs 1
+6 vs 3                                          3 vs 6
+5 vs 4                                          4 vs 5
+
+
+Note that, for example, changing 2-6 in Week 3 with 6-2 in Week 8
+doesn't change the pairings,
+This is true for any pair set.
+
+Note that Weeks 4-9 and Weeks 5-10 can be exchanged without changing
+the pairings.
+
+===================================================================
+
+What seems to make it fairly complicated is that gyms are shared by
+teams within a division and with
+teams in other divisions.  Additionally, the exclusion of some date
+and/or time can effectively make
+the schedule definition impossible.   This was actually the case this
+year, so the scheduler had to go
+to a gym and beg for additional time.
+
+I hope this helps you.   I have code that manages the teams, defines
+their home gyms and defines gym
+exclusions.   There is also code for two other algorithms that I
+pursued but couldn't generate final schedules
+with.   I can let you see the interface if you would like.
+
+===================================================================
+
+There are 19 gyms for the 48 teams.
+
+The minimum time slot is 1 hour.   One hour is  the basic unit of
+scheduling, by the way.
+
+One gym as 4 times slots, noon, 1,2,3.  Others have 2 and 3 time
+slots.  It all depends
+on the gym.  In all cases, the number of available hours is constant
+for each gym.  The
+exclusions are used to removed something for the available pool.
+
+Each team is assigned to only one gym, though.   I maintain a record
+of all standard available times for each gym, then apply the exclusions.
