@@ -13,7 +13,9 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+//  along with volleyball.  If not, see <http://www.gnu.org/licenses/>.
+//
+//  Copyright (C) 2011 Michael E. Smoot
 //-----------------------------------------------------------------------
 
 package com.aescon.volleyball.io;
@@ -40,6 +42,8 @@ public class GymReader {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				String[] l = line.split(",");
+				if ( l.length <= 4 )
+					continue;
 				String name = l[0].trim();
 				String nickName = l[1].trim();
 				String times = l[4].trim();

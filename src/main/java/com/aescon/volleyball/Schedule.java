@@ -13,7 +13,9 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+//  along with volleyball.  If not, see <http://www.gnu.org/licenses/>.
+//
+//  Copyright (C) 2011 Michael E. Smoot
 //-----------------------------------------------------------------------
 
 package com.aescon.volleyball;
@@ -26,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Collections;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class Schedule {
 
@@ -38,6 +41,8 @@ public class Schedule {
 	private Map<Integer,Set<Team>> divSets = new HashMap<Integer,Set<Team>>();
 	private Set<Team> allTeams; 
 	private final List<Team> teams; 
+
+	private static Logger logger = Logger.getLogger(Schedule.class.getName());
 
 	public Schedule( List<Team> teams, int numWeeks ) {
 		this.teams = teams;
@@ -83,7 +88,7 @@ public class Schedule {
 		double res = validate(working,false);
 
 		if ( res < best ) {
-			System.out.println("found better: " + res + "   @" + t);
+			logger.info("found better: " + res + "   @" + t);
 			Collections.copy(currentSchedule,working);
 			ret = res;
 		} else if ( res == best ) {
@@ -114,11 +119,11 @@ public class Schedule {
 			if ( best <= 0 )
 				return currentSchedule;;	
 			if ( t % 100000 == 0 )
-				System.out.println(" @ " + t);
+				logger.info(" @ " + t);
 		}
 
 		// now search only teams found to be playing twice in a week
-		System.out.println("DUPE search");
+		logger.info("DUPE search");
 		int firstDupe;
 		while ( (firstDupe = findFirstDupeGame(working)) >= 0 ) {
 			t = 0;
@@ -132,16 +137,16 @@ public class Schedule {
 				if ( best <= 0 )
 					return currentSchedule;
 				if ( t % 50000 == 0 )
-					System.out.println(" @ " + t);
+					logger.info(" @ " + t);
 			}
 		}
 
 
-		System.out.println("OVERSUBSCRIBE search");
+		logger.info("OVERSUBSCRIBE search");
 		int overSubscribedGame = -1;
 		while ( (overSubscribedGame = findOverSubscribedGame(working, overSubscribedGame)) >= 0 ) {
 			int firstOverDivision = working.get(overSubscribedGame).getHomeTeam().getDivision();
-			System.out.println("looking at: " + firstOverDivision + " for oversub: " + overSubscribedGame);
+			logger.info("looking at: " + firstOverDivision + " for oversub: " + overSubscribedGame);
 			t = 0;
 	 		while ( t++ < 10000 ) {
 
@@ -152,11 +157,11 @@ public class Schedule {
 				if ( best <= 0 )
 					return currentSchedule;
 				if ( t % 50000 == 0 )
-					System.out.println(" @ " + t);
+					logger.info(" @ " + t);
 			}
 		}
 
-		System.out.println("failed to find satisfactory schedule!");
+		logger.info("failed to find satisfactory schedule!");
 
 		return currentSchedule;
 	}
@@ -237,7 +242,7 @@ public class Schedule {
 		// check each week
 		for ( int week = 0; week < numWeeks; week++ ) {
 			if ( print )
-				System.out.println("Week : " + week + " problems ===========");
+				logger.info("Week : " + week + " problems ===========");
 
 			List<Game> weekGames = getWeekGames(games,week); 
 
@@ -277,7 +282,7 @@ public class Schedule {
 				Set<Team> all = new HashSet<Team>(allTeams);
 				all.removeAll(weekTeams);
 				for ( Team ts : all) 
-					System.out.println(" missing " + ts);
+					logger.info(" missing " + ts);
 			}
 		}
 		return cost;
@@ -294,7 +299,7 @@ public class Schedule {
 			if ( gymCounts.get(g) > g.getSlotsPerDay()[week] ) {
 				cost += 1.0;
 				if ( print ) {
-					System.out.println(" too many users for gym: " + g + " (" + gymCounts.get(g) + ")");
+					logger.info(" too many users for gym: " + g + " (" + gymCounts.get(g) + ")");
 				}
 			}
 		}

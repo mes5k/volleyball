@@ -13,13 +13,19 @@
 //  GNU General Public License for more details.
 //
 //  You should have received a copy of the GNU General Public License
-//  along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+//  along with volleyball.  If not, see <http://www.gnu.org/licenses/>.
+//
+//  Copyright (C) 2011 Michael E. Smoot
 //-----------------------------------------------------------------------
 
 package com.aescon.volleyball;
 
 import java.util.Map;
 import java.util.List;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.logging.*;
+import java.io.IOException;
 
 import com.aescon.volleyball.io.GymReader;
 import com.aescon.volleyball.io.TeamReader;
@@ -31,6 +37,7 @@ public class Main {
 	private static final int teamsPerDivision = 6;
 
 	public static void main(String[] args) {
+		configLogging();
 		
 		validateArgs(args);
 
@@ -43,16 +50,22 @@ public class Main {
 		Schedule schedule = new Schedule(teams,numWeeks);
 		List<Game> games = schedule.getSchedule();
 
-		int numGamesPerWeek = numDivisions * teamsPerDivision / 2;
 		for ( int week = 0; week < numWeeks; week++ ) {
-			int begin = numGamesPerWeek * week;
-			System.out.println("---------- week: " + week + " -----------");
-			for ( int game = 0; game < numGamesPerWeek; game++)
-				System.out.println("(week " + week + "): " + games.get(begin + game) );
+			System.out.println("---------- week: " + (week+1) + " -----------");
+			List<Game> wg = schedule.getWeekGames(games,week);
+			for ( Game g : wg ) {
+				Gym gym = g.getGym();
+				Set<String> slots = gym.getSlotSets().get(week);
+				Iterator<String> sit = slots.iterator();
+				if ( sit.hasNext() ) {
+					String s = sit.next();
+					System.out.println(g + ": " + s);
+					slots.remove(s);
+				} else {
+					System.out.println(g + ": NO SPACE!");
+				}
+			}
 		}
-
-		double res = schedule.validate(games);
-		System.out.println("validation result: " + res);
 	}
 
 	private static void validateArgs(String[] args) {
@@ -62,6 +75,29 @@ public class Main {
 			System.err.println("USAGE: java -jar volleyball.jar <gyms.csv> <teams.csv>");
 			System.err.println("");
 			System.exit(1);
+		}
+	}
+
+	private static void configLogging() {
+		//Logger globalLogger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+		Logger globalLogger = Logger.getLogger("");
+		try {
+			for ( Handler h : globalLogger.getHandlers() )
+				globalLogger.removeHandler(h);
+			FileHandler fh = new FileHandler("schedule-creation-log.txt"); 
+			fh.setFormatter(new CleanFormatter());
+			globalLogger.addHandler(fh);
+			globalLogger.setLevel(Level.ALL);
+		} catch (IOException ioe) { ioe.printStackTrace(); }
+	}
+
+	private static class CleanFormatter extends Formatter {
+		private static final String newline = System.getProperty("line.separator");
+		CleanFormatter() {
+			super();
+		}
+		public String format(LogRecord rec) {
+			return rec.getLevel().toString() + ": " + rec.getMessage() + newline;
 		}
 	}
 }
